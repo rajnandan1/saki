@@ -1,0 +1,7 @@
+services:
+  proxy:
+    build: .
+    container_name: saki-proxy
+    ports:
+      - "8765:80"
+    restart: unless-stopped
