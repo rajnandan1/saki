@@ -4,19 +4,21 @@ A self-hosted Nginx reverse proxy that routes analytics and tracking requests th
 
 Runs as a single Docker container using Nginx Alpine.
 
+When deployed to platforms like Railway, the container automatically binds to the platform-provided `PORT` environment variable. Locally, it defaults to port `80` inside the container.
+
 ## Supported Services
 
-| Service | Route | Upstream Domain |
-|---------|-------|-----------------|
+| Service            | Route                | Upstream Domain            |
+| ------------------ | -------------------- | -------------------------- |
 | Google Tag Manager | `/googletagmanager/` | `www.googletagmanager.com` |
-| Google Analytics | `/google-analytics/` | `www.google-analytics.com` |
-| Amplitude CDN | `/amplitude-cdn/` | `cdn.amplitude.com` |
-| Amplitude API | `/amplitude-api/` | `api2.amplitude.com` |
-| Mixpanel CDN | `/mixpanel-cdn/` | `cdn.mxpnl.com` |
-| Mixpanel API | `/mixpanel-api/` | `api.mixpanel.com` |
-| Microsoft Clarity | `/clarity/` | `www.clarity.ms` |
-| PostHog JS | `/posthog-js/` | `us-assets.i.posthog.com` |
-| PostHog API | `/posthog-api/` | `us.i.posthog.com` |
+| Google Analytics   | `/google-analytics/` | `www.google-analytics.com` |
+| Amplitude CDN      | `/amplitude-cdn/`    | `cdn.amplitude.com`        |
+| Amplitude API      | `/amplitude-api/`    | `api2.amplitude.com`       |
+| Mixpanel CDN       | `/mixpanel-cdn/`     | `cdn.mxpnl.com`            |
+| Mixpanel API       | `/mixpanel-api/`     | `api.mixpanel.com`         |
+| Microsoft Clarity  | `/clarity/`          | `www.clarity.ms`           |
+| PostHog JS         | `/posthog-js/`       | `us-assets.i.posthog.com`  |
+| PostHog API        | `/posthog-api/`      | `us.i.posthog.com`         |
 
 ## Get Started
 
@@ -30,12 +32,12 @@ Or with Docker Compose, create a `docker-compose.yml`:
 
 ```yaml
 services:
-  saki:
-    image: rajnandan1/saki:latest
-    container_name: saki
-    ports:
-      - "8765:80"
-    restart: unless-stopped
+    saki:
+        image: rajnandan1/saki:latest
+        container_name: saki
+        ports:
+            - "8765:80"
+        restart: unless-stopped
 ```
 
 ```bash
@@ -115,9 +117,9 @@ Replace the original script domains in your website with the proxy URL.
 ```html
 <!-- Before (inside Clarity snippet) -->
 <script>
-  // Change the script source domain in the Clarity snippet
-  // from: https://www.clarity.ms/tag/PROJECT_ID
-  // to:   https://your-proxy.example.com/clarity/tag/PROJECT_ID
+    // Change the script source domain in the Clarity snippet
+    // from: https://www.clarity.ms/tag/PROJECT_ID
+    // to:   https://your-proxy.example.com/clarity/tag/PROJECT_ID
 </script>
 ```
 
@@ -125,10 +127,12 @@ Replace the original script domains in your website with the proxy URL.
 
 ```js
 // Before
-posthog.init('YOUR_KEY', { api_host: 'https://us.i.posthog.com' })
+posthog.init("YOUR_KEY", { api_host: "https://us.i.posthog.com" });
 
 // After
-posthog.init('YOUR_KEY', { api_host: 'https://your-proxy.example.com/posthog-api' })
+posthog.init("YOUR_KEY", {
+    api_host: "https://your-proxy.example.com/posthog-api",
+});
 ```
 
 ## Configuration
@@ -139,7 +143,7 @@ Edit `docker-compose.yml` and change the host port:
 
 ```yaml
 ports:
-  - "3000:80"  # Change 8765 to any port
+    - "3000:80" # Change 8765 to any port
 ```
 
 ### Add a new service
@@ -186,6 +190,10 @@ For production, put this behind your own domain with HTTPS:
 2. Point a subdomain (e.g., `t.yourdomain.com`) to the server
 3. Use a reverse proxy (Caddy, Traefik, or another Nginx) with TLS termination in front of the container
 4. Update your website scripts to use `https://t.yourdomain.com/...`
+
+### Railway
+
+Railway injects a `PORT` environment variable at runtime. This project reads that automatically, so no manual port configuration is required.
 
 ## Project Structure
 
