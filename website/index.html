@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Saki — Self-hosted analytics proxy</title>
+        <meta
+            name="description"
+            content="Route analytics requests through your own domain. Bypass adblockers with a single Docker container."
+        />
+        <meta
+            property="og:title"
+            content="Saki — Self-hosted analytics proxy"
+        />
+        <meta
+            property="og:description"
+            content="Route analytics requests through your own domain. Bypass adblockers with a single Docker container."
+        />
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:image"
+            content="https://saki.rajnandan.com/assets/saki_png_4x.png"
+        />
+
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="assets/favicon-32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="assets/favicon-16.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="assets/apple-touch-icon.png"
+        />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+        />
+
+        <style>
+            :root {
+                --amber: #d4942a;
+                --amber-light: #e8b05a;
+                --amber-dark: #a87321;
+                --cream: #fffaf3;
+                --cream-deep: #fff3e4;
+                --bark: #1a1207;
+                --bark-light: #2d2006;
+                --bark-mid: #5c4a2a;
+                --warm-gray: #8b7d6b;
+                --warm-white: #fefcf9;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: "Plus Jakarta Sans", sans-serif;
+                color: var(--bark-light);
+                background: var(--cream);
+                -webkit-font-smoothing: antialiased;
+                overflow-x: hidden;
+            }
+
+            /* ─── Typography ─── */
+
+            .display-font {
+                font-family: "Instrument Serif", serif;
+            }
+
+            .section-label {
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--amber);
+                margin-bottom: 1rem;
+            }
+
+            .section-heading {
+                font-family: "Instrument Serif", serif;
+                font-size: clamp(2rem, 4vw, 3rem);
+                line-height: 1.15;
+                color: var(--bark);
+                margin-bottom: 1.5rem;
+            }
+
+            /* ─── Navbar ─── */
+
+            .navbar-custom {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                padding: 1.25rem 0;
+                transition:
+                    background 0.4s ease,
+                    padding 0.4s ease,
+                    box-shadow 0.4s ease;
+            }
+
+            .navbar-custom.scrolled {
+                background: rgba(26, 18, 7, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                padding: 0.75rem 0;
+                box-shadow: 0 1px 0 rgba(212, 148, 42, 0.15);
+            }
+
+            .navbar-custom .navbar-brand-text {
+                font-family: "Instrument Serif", serif;
+                font-size: 1.5rem;
+                color: var(--cream);
+                text-decoration: none;
+                transition: opacity 0.2s;
+            }
+
+            .navbar-custom .navbar-brand-text:hover {
+                opacity: 0.8;
+            }
+
+            .navbar-custom .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+            }
+
+            .navbar-custom .nav-links a {
+                color: rgba(255, 250, 243, 0.7);
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+
+            .navbar-custom .nav-links a:hover {
+                color: var(--cream);
+            }
+
+            .navbar-custom .nav-links .btn-nav {
+                background: var(--amber);
+                color: var(--bark);
+                padding: 0.5rem 1.25rem;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 0.85rem;
+                transition:
+                    background 0.2s,
+                    transform 0.2s;
+            }
+
+            .navbar-custom .nav-links .btn-nav:hover {
+                background: var(--amber-light);
+                transform: translateY(-1px);
+            }
+
+            .nav-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .mobile-toggle {
+                display: none;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.5rem;
+            }
+
+            .mobile-toggle span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: var(--cream);
+                margin: 5px 0;
+                transition:
+                    transform 0.3s,
+                    opacity 0.3s;
+            }
+
+            /* ─── Hero ─── */
+
+            .hero-section {
+                position: relative;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+            }
+
+            .hero-bg {
+                position: absolute;
+                inset: 0;
+                background: url("assets/hero-optimized.jpg") center/cover
+                    no-repeat;
+            }
+
+            .hero-bg::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    135deg,
+                    rgba(26, 18, 7, 0.88) 0%,
+                    rgba(26, 18, 7, 0.72) 40%,
+                    rgba(26, 18, 7, 0.5) 100%
+                );
+            }
+
+            .hero-content {
+                position: relative;
+                z-index: 2;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 8rem 2rem 6rem;
+                width: 100%;
+            }
+
+            .hero-title {
+                font-family: "Instrument Serif", serif;
+                font-size: clamp(3.5rem, 8vw, 6rem);
+                color: var(--cream);
+                line-height: 1.05;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-title em {
+                color: var(--amber-light);
+                font-style: italic;
+            }
+
+            .hero-subtitle {
+                font-size: clamp(1.1rem, 2vw, 1.35rem);
+                color: rgba(255, 250, 243, 0.75);
+                max-width: 520px;
+                line-height: 1.65;
+                margin-bottom: 2.5rem;
+                font-weight: 400;
+            }
+
+            .hero-actions {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .btn-primary {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: var(--amber);
+                color: var(--bark);
+                padding: 0.875rem 2rem;
+                border-radius: 8px;
+                font-weight: 700;
+                font-size: 0.95rem;
+                text-decoration: none;
+                transition:
+                    background 0.2s,
+                    transform 0.15s;
+                border: none;
+                cursor: pointer;
+            }
+
+            .btn-primary:hover {
+                background: var(--amber-light);
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: transparent;
+                color: var(--cream);
+                padding: 0.875rem 2rem;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.95rem;
+                text-decoration: none;
+                border: 1.5px solid rgba(255, 250, 243, 0.25);
+                transition:
+                    border-color 0.2s,
+                    transform 0.15s;
+            }
+
+            .btn-secondary:hover {
+                border-color: rgba(255, 250, 243, 0.5);
+                transform: translateY(-2px);
+            }
+
+            .hero-docker {
+                margin-top: 3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .hero-docker code {
+                background: rgba(255, 250, 243, 0.08);
+                border: 1px solid rgba(255, 250, 243, 0.12);
+                border-radius: 8px;
+                padding: 0.75rem 1.25rem;
+                color: var(--amber-light);
+                font-family: "SFMono-Regular", "Consolas", monospace;
+                font-size: 0.85rem;
+                user-select: all;
+            }
+
+            .copy-btn {
+                background: rgba(255, 250, 243, 0.08);
+                border: 1px solid rgba(255, 250, 243, 0.12);
+                border-radius: 8px;
+                color: rgba(255, 250, 243, 0.6);
+                padding: 0.75rem;
+                cursor: pointer;
+                transition:
+                    color 0.2s,
+                    background 0.2s;
+                display: flex;
+                align-items: center;
+            }
+
+            .copy-btn:hover {
+                color: var(--cream);
+                background: rgba(255, 250, 243, 0.12);
+            }
+
+            .copy-icon-default,
+            .copy-icon-done {
+                display: inline;
+            }
+            .copy-btn .copy-icon-done {
+                display: none;
+            }
+            .copy-btn.copied .copy-icon-default {
+                display: none;
+            }
+            .copy-btn.copied .copy-icon-done {
+                display: inline;
+            }
+
+            /* ─── Why Section ─── */
+
+            .why-section {
+                padding: clamp(5rem, 10vw, 8rem) 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .why-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2.5rem;
+                margin-top: 3rem;
+            }
+
+            .why-card {
+                padding: 2rem 0;
+                border-top: 2px solid var(--amber);
+            }
+
+            .why-card-icon {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 1.25rem;
+                color: var(--amber);
+            }
+
+            .why-card h3 {
+                font-family: "Instrument Serif", serif;
+                font-size: 1.35rem;
+                color: var(--bark);
+                margin-bottom: 0.75rem;
+            }
+
+            .why-card p {
+                color: var(--warm-gray);
+                line-height: 1.7;
+                font-size: 0.95rem;
+            }
+
+            /* ─── Services Section ─── */
+
+            .services-section {
+                background: var(--bark);
+                padding: clamp(5rem, 10vw, 8rem) 2rem;
+            }
+
+            .services-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .services-section .section-label {
+                color: var(--amber-light);
+            }
+
+            .services-section .section-heading {
+                color: var(--cream);
+            }
+
+            .services-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                background: rgba(255, 250, 243, 0.08);
+                border-radius: 12px;
+                overflow: hidden;
+                margin-top: 3rem;
+            }
+
+            .service-cell {
+                background: var(--bark);
+                padding: 2rem;
+                transition: background 0.3s;
+            }
+
+            .service-cell:hover {
+                background: rgba(212, 148, 42, 0.08);
+            }
+
+            .service-name {
+                font-weight: 700;
+                color: var(--cream);
+                font-size: 1rem;
+                margin-bottom: 0.35rem;
+            }
+
+            .service-route {
+                font-family: "SFMono-Regular", "Consolas", monospace;
+                font-size: 0.8rem;
+                color: var(--amber-light);
+                margin-bottom: 0.5rem;
+            }
+
+            .service-upstream {
+                font-size: 0.8rem;
+                color: var(--warm-gray);
+            }
+
+            /* ─── Get Started Section ─── */
+
+            .start-section {
+                padding: clamp(5rem, 10vw, 8rem) 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .start-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 4rem;
+                align-items: start;
+                margin-top: 3rem;
+            }
+
+            .start-step {
+                margin-bottom: 2.5rem;
+            }
+
+            .start-step-number {
+                font-family: "Instrument Serif", serif;
+                font-size: 2.5rem;
+                color: var(--amber);
+                line-height: 1;
+                margin-bottom: 0.5rem;
+            }
+
+            .start-step h3 {
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: var(--bark);
+                margin-bottom: 0.35rem;
+            }
+
+            .start-step p {
+                color: var(--warm-gray);
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .code-block {
+                background: var(--bark);
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .code-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.875rem 1.25rem;
+                border-bottom: 1px solid rgba(255, 250, 243, 0.06);
+            }
+
+            .code-dots {
+                display: flex;
+                gap: 6px;
+            }
+
+            .code-dots span {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: rgba(255, 250, 243, 0.12);
+            }
+
+            .code-label {
+                font-size: 0.75rem;
+                color: var(--warm-gray);
+                font-weight: 500;
+            }
+
+            .code-block pre {
+                padding: 1.5rem;
+                margin: 0;
+                overflow-x: auto;
+            }
+
+            .code-block code {
+                font-family: "SFMono-Regular", "Consolas", monospace;
+                font-size: 0.85rem;
+                line-height: 1.7;
+                color: rgba(255, 250, 243, 0.8);
+                background: none;
+            }
+
+            .code-block .hl-comment {
+                color: var(--warm-gray);
+            }
+            .code-block .hl-key {
+                color: var(--amber-light);
+            }
+            .code-block .hl-string {
+                color: #a8d8a8;
+            }
+            .code-block .hl-flag {
+                color: #8bb8d0;
+            }
+
+            /* ─── Usage Section ─── */
+
+            .usage-section {
+                background: var(--cream-deep);
+                padding: clamp(5rem, 10vw, 8rem) 2rem;
+            }
+
+            .usage-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .usage-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.2fr;
+                gap: 4rem;
+                align-items: start;
+                margin-top: 3rem;
+            }
+
+            .usage-example {
+                margin-bottom: 2rem;
+            }
+
+            .usage-example h3 {
+                font-weight: 700;
+                font-size: 0.95rem;
+                margin-bottom: 0.5rem;
+                color: var(--bark);
+            }
+
+            .usage-arrow {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin: 1rem 0;
+            }
+
+            .usage-arrow .from,
+            .usage-arrow .to {
+                font-family: "SFMono-Regular", "Consolas", monospace;
+                font-size: 0.78rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
+                word-break: break-all;
+            }
+
+            .usage-arrow .from {
+                background: rgba(212, 148, 42, 0.08);
+                color: var(--warm-gray);
+                text-decoration: line-through;
+            }
+
+            .usage-arrow .to {
+                background: rgba(212, 148, 42, 0.15);
+                color: var(--amber-dark);
+                font-weight: 600;
+            }
+
+            .usage-arrow svg {
+                flex-shrink: 0;
+                color: var(--amber);
+            }
+
+            /* ─── Footer ─── */
+
+            .footer-section {
+                background: var(--bark);
+                padding: 3rem 2rem;
+            }
+
+            .footer-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .footer-brand {
+                font-family: "Instrument Serif", serif;
+                font-size: 1.25rem;
+                color: var(--cream);
+            }
+
+            .footer-links {
+                display: flex;
+                gap: 2rem;
+                align-items: center;
+            }
+
+            .footer-links a {
+                color: var(--warm-gray);
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: color 0.2s;
+            }
+
+            .footer-links a:hover {
+                color: var(--cream);
+            }
+
+            .footer-copy {
+                color: var(--bark-mid);
+                font-size: 0.8rem;
+                text-align: center;
+                margin-top: 2rem;
+                padding-top: 2rem;
+                border-top: 1px solid rgba(255, 250, 243, 0.06);
+                max-width: 1200px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .footer-copy a {
+                color: var(--warm-gray);
+                text-decoration: underline;
+            }
+
+            /* ─── Scroll Reveal ─── */
+
+            .reveal {
+                opacity: 0;
+                transform: translateY(24px);
+                transition:
+                    opacity 0.7s ease,
+                    transform 0.7s ease;
+            }
+
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .reveal-delay-1 {
+                transition-delay: 0.1s;
+            }
+            .reveal-delay-2 {
+                transition-delay: 0.2s;
+            }
+            .reveal-delay-3 {
+                transition-delay: 0.3s;
+            }
+
+            /* ─── Responsive ─── */
+
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+
+                .mobile-toggle {
+                    display: block;
+                }
+
+                .why-grid {
+                    grid-template-columns: 1fr;
+                    gap: 0;
+                }
+
+                .services-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .start-grid {
+                    grid-template-columns: 1fr;
+                    gap: 2.5rem;
+                }
+
+                .usage-grid {
+                    grid-template-columns: 1fr;
+                    gap: 2.5rem;
+                }
+
+                .hero-docker {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .hero-docker code {
+                    font-size: 0.75rem;
+                    word-break: break-all;
+                }
+
+                .footer-inner {
+                    flex-direction: column;
+                    gap: 1.5rem;
+                    text-align: center;
+                }
+
+                .footer-links {
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+
+                .usage-arrow {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .usage-arrow svg {
+                    transform: rotate(90deg);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .hero-title {
+                    font-size: 2.75rem;
+                }
+
+                .services-grid {
+                    border-radius: 8px;
+                }
+            }
+        </style>
+        <script
+            async
+            src="https://saki-production.up.railway.app/googletagmanager/gtag/js?id=G-XY8P7ZVPV5"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-XY8P7ZVPV5", {
+                transport_url:
+                    "https://saki-production.up.railway.app/google-analytics",
+            });
+        </script>
+    </head>
+    <body>
+        <!-- ─── Navbar ─── -->
+        <nav class="navbar-custom" id="navbar">
+            <div class="nav-inner">
+                <a href="#" class="navbar-brand-text"
+                    ><img
+                        src="assets/saki.svg"
+                        alt="Saki"
+                        width="36"
+                        height="25"
+                        style="vertical-align: middle; margin-right: 0.5rem"
+                    />Saki</a
+                >
+                <button class="mobile-toggle" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-links">
+                    <a href="#why">Why Saki</a>
+                    <a href="#services">Services</a>
+                    <a href="#start">Get Started</a>
+                    <a href="https://github.com/rajnandan1/saki" class="btn-nav"
+                        >GitHub</a
+                    >
+                </div>
+            </div>
+        </nav>
+
+        <!-- ─── Hero ─── -->
+        <section class="hero-section">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Your analytics,<br /><em>your domain</em>
+                </h1>
+                <p class="hero-subtitle">
+                    A self-hosted Nginx reverse proxy that routes analytics
+                    requests through your infrastructure. Bypass adblockers with
+                    a single Docker container.
+                </p>
+                <div class="hero-actions">
+                    <a href="#start" class="btn-primary">
+                        Get Started
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                        >
+                            <path
+                                d="M3 8h10M9 4l4 4-4 4"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </a>
+                    <a
+                        href="https://github.com/rajnandan1/saki"
+                        class="btn-secondary"
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                        >
+                            <path
+                                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
+                            />
+                        </svg>
+                        GitHub
+                    </a>
+                </div>
+                <div class="hero-docker">
+                    <code id="docker-cmd"
+                        >docker run -d -p 8765:80 rajnandan1/saki</code
+                    >
+                    <button
+                        class="copy-btn"
+                        id="copy-btn"
+                        aria-label="Copy command"
+                    >
+                        <svg
+                            class="copy-icon-default"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <rect
+                                x="9"
+                                y="9"
+                                width="13"
+                                height="13"
+                                rx="2"
+                                ry="2"
+                            />
+                            <path
+                                d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
+                            />
+                        </svg>
+                        <svg
+                            class="copy-icon-done"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Why Saki ─── -->
+        <section class="why-section" id="why">
+            <div class="section-label reveal">Why Saki</div>
+            <h2 class="section-heading reveal">
+                Analytics that actually<br />reach your dashboard
+            </h2>
+            <div class="why-grid">
+                <div class="why-card reveal reveal-delay-1">
+                    <svg class="why-card-icon" viewBox="0 0 40 40" fill="none">
+                        <path
+                            d="M20 5L35 15V30L20 35L5 30V15L20 5Z"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            fill="none"
+                        />
+                        <path
+                            d="M20 20L35 15M20 20V35M20 20L5 15"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        />
+                    </svg>
+                    <h3>Bypass adblockers</h3>
+                    <p>
+                        Adblockers target known analytics domains. Requests
+                        through your own domain pass through cleanly, giving you
+                        the full picture of your traffic.
+                    </p>
+                </div>
+                <div class="why-card reveal reveal-delay-2">
+                    <svg class="why-card-icon" viewBox="0 0 40 40" fill="none">
+                        <circle
+                            cx="20"
+                            cy="20"
+                            r="14"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        />
+                        <path
+                            d="M14 20h12M20 14v12"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                    <h3>Full header forwarding</h3>
+                    <p>
+                        User-Agent, cookies, IP address, language — every client
+                        detail is forwarded so analytics SDKs work exactly as
+                        they would directly.
+                    </p>
+                </div>
+                <div class="why-card reveal reveal-delay-3">
+                    <svg class="why-card-icon" viewBox="0 0 40 40" fill="none">
+                        <rect
+                            x="6"
+                            y="10"
+                            width="28"
+                            height="20"
+                            rx="3"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        />
+                        <path
+                            d="M15 20l3 3 7-7"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    <h3>Add any service</h3>
+                    <p>
+                        Drop in a new Nginx location block for any analytics or
+                        tracking service. Facebook Pixel, Hotjar, Segment — if
+                        it has a domain, Saki can proxy it.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Services ─── -->
+        <section class="services-section" id="services">
+            <div class="services-inner">
+                <div class="section-label reveal">Supported Services</div>
+                <h2 class="section-heading reveal">
+                    Works with the tools<br />you already use
+                </h2>
+                <div class="services-grid reveal">
+                    <div class="service-cell">
+                        <div class="service-name">Google Tag Manager</div>
+                        <div class="service-route">/googletagmanager/</div>
+                        <div class="service-upstream">
+                            www.googletagmanager.com
+                        </div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Google Analytics</div>
+                        <div class="service-route">/google-analytics/</div>
+                        <div class="service-upstream">
+                            www.google-analytics.com
+                        </div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Amplitude</div>
+                        <div class="service-route">/amplitude-cdn/</div>
+                        <div class="service-upstream">cdn.amplitude.com</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Mixpanel</div>
+                        <div class="service-route">/mixpanel-cdn/</div>
+                        <div class="service-upstream">cdn.mxpnl.com</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Microsoft Clarity</div>
+                        <div class="service-route">/clarity/</div>
+                        <div class="service-upstream">www.clarity.ms</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">PostHog</div>
+                        <div class="service-route">/posthog-js/</div>
+                        <div class="service-upstream">
+                            us-assets.i.posthog.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Get Started ─── -->
+        <section class="start-section" id="start">
+            <div class="section-label reveal">Get Started</div>
+            <h2 class="section-heading reveal">
+                Up and running<br />in under a minute
+            </h2>
+            <div class="start-grid">
+                <div>
+                    <div class="start-step reveal reveal-delay-1">
+                        <div class="start-step-number">1</div>
+                        <h3>Run the container</h3>
+                        <p>
+                            Pull from Docker Hub and start with a single
+                            command. Saki listens on port 80 inside the
+                            container.
+                        </p>
+                    </div>
+                    <div class="start-step reveal reveal-delay-2">
+                        <div class="start-step-number">2</div>
+                        <h3>Point your scripts</h3>
+                        <p>
+                            Replace analytics domains in your website with your
+                            Saki proxy URL. That's it — no SDK changes needed.
+                        </p>
+                    </div>
+                    <div class="start-step reveal reveal-delay-3">
+                        <div class="start-step-number">3</div>
+                        <h3>Deploy to production</h3>
+                        <p>
+                            Put it behind your own subdomain with HTTPS. Works
+                            on any platform — Railway, Render, Fly.io, a VPS, or
+                            bare metal.
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block reveal">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="code-label">docker-compose.yml</span>
+                        </div>
+                        <pre><code><span class="hl-key">services</span>:
+  <span class="hl-key">saki</span>:
+    <span class="hl-key">image</span>: <span class="hl-string">rajnandan1/saki:latest</span>
+    <span class="hl-key">container_name</span>: <span class="hl-string">saki</span>
+    <span class="hl-key">ports</span>:
+      - <span class="hl-string">"8765:80"</span>
+    <span class="hl-key">restart</span>: <span class="hl-string">unless-stopped</span></code></pre>
+                    </div>
+                    <div
+                        class="code-block reveal reveal-delay-1"
+                        style="margin-top: 1rem"
+                    >
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="code-label">terminal</span>
+                        </div>
+                        <pre><code><span class="hl-comment"># verify it works</span>
+$ curl <span class="hl-flag">-s</span> http://localhost:8765/health
+<span class="hl-string">OK</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Usage ─── -->
+        <section class="usage-section" id="usage">
+            <div class="usage-inner">
+                <div class="section-label reveal">Usage</div>
+                <h2 class="section-heading reveal">
+                    Swap one domain,<br />keep everything else
+                </h2>
+                <div class="usage-grid">
+                    <div>
+                        <p
+                            class="reveal"
+                            style="
+                                color: var(--warm-gray);
+                                line-height: 1.7;
+                                font-size: 0.95rem;
+                                margin-bottom: 2rem;
+                            "
+                        >
+                            Replace the analytics domain in your script tags
+                            with your Saki proxy URL. No SDK changes, no config
+                            rewrites — just a different hostname.
+                        </p>
+                        <div class="usage-example reveal">
+                            <h3>Google Tag Manager</h3>
+                            <div class="usage-arrow">
+                                <span class="from"
+                                    >www.googletagmanager.com/gtag/js</span
+                                >
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M4 10h12M12 6l4 4-4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <span class="to"
+                                    >your-domain.com/googletagmanager/gtag/js</span
+                                >
+                            </div>
+                        </div>
+                        <div class="usage-example reveal">
+                            <h3>Amplitude</h3>
+                            <div class="usage-arrow">
+                                <span class="from"
+                                    >cdn.amplitude.com/libs/...</span
+                                >
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M4 10h12M12 6l4 4-4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <span class="to"
+                                    >your-domain.com/amplitude-cdn/libs/...</span
+                                >
+                            </div>
+                        </div>
+                        <div class="usage-example reveal">
+                            <h3>PostHog</h3>
+                            <div class="usage-arrow">
+                                <span class="from">us.i.posthog.com</span>
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M4 10h12M12 6l4 4-4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <span class="to"
+                                    >your-domain.com/posthog-api</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-block reveal">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="code-label">your-website.html</span>
+                        </div>
+                        <pre><code><span class="hl-comment">&lt;!-- Before --&gt;</span>
+&lt;script src=<span class="hl-string">"https://www.googletagmanager.com
+  /gtag/js?id=G-XXXXXXXX"</span>&gt;&lt;/script&gt;
+
+<span class="hl-comment">&lt;!-- After --&gt;</span>
+&lt;script src=<span class="hl-string">"https://your-domain.com
+  /googletagmanager/gtag/js?id=G-XXXXXXXX"</span>&gt;&lt;/script&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Footer ─── -->
+        <footer class="footer-section">
+            <div class="footer-inner">
+                <span class="footer-brand"
+                    ><img
+                        src="assets/saki.svg"
+                        alt="Saki"
+                        width="36"
+                        height="25"
+                        style="vertical-align: middle; margin-right: 0.5rem"
+                    />Saki</span
+                >
+                <div class="footer-links">
+                    <a href="https://github.com/rajnandan1/saki">GitHub</a>
+                    <a href="https://hub.docker.com/r/rajnandan1/saki"
+                        >Docker Hub</a
+                    >
+                    <a href="https://rajnandan.com">rajnandan.com</a>
+                    <a
+                        href="https://github.com/rajnandan1/saki/blob/main/LICENSE"
+                        >MIT License</a
+                    >
+                </div>
+            </div>
+            <p class="footer-copy">
+                Built by <a href="https://rajnandan.com">Raj Nandan Sharma</a>
+            </p>
+        </footer>
+
+        <script>
+            // Navbar scroll effect
+            var nav = document.getElementById("navbar");
+            window.addEventListener(
+                "scroll",
+                function () {
+                    nav.classList.toggle("scrolled", window.scrollY > 40);
+                },
+                { passive: true },
+            );
+
+            // Copy docker command (safe: no innerHTML, uses class toggle)
+            document
+                .getElementById("copy-btn")
+                .addEventListener("click", function () {
+                    var cmd = document.getElementById("docker-cmd").textContent;
+                    var btn = this;
+                    navigator.clipboard.writeText(cmd).then(function () {
+                        btn.classList.add("copied");
+                        setTimeout(function () {
+                            btn.classList.remove("copied");
+                        }, 2000);
+                    });
+                });
+
+            // Scroll reveal
+            var reveals = document.querySelectorAll(".reveal");
+            var observer = new IntersectionObserver(
+                function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible");
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                },
+                { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+            );
+
+            reveals.forEach(function (el) {
+                observer.observe(el);
+            });
+        </script>
+    </body>
+</html>
