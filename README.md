@@ -18,7 +18,31 @@ Runs as a single Docker container using Nginx Alpine.
 | PostHog JS | `/posthog-js/` | `us-assets.i.posthog.com` |
 | PostHog API | `/posthog-api/` | `us.i.posthog.com` |
 
-## Quick Start
+## Get Started
+
+### Docker Hub (recommended)
+
+```bash
+docker run -d --name saki -p 8765:80 --restart unless-stopped rajnandan1/saki:latest
+```
+
+Or with Docker Compose, create a `docker-compose.yml`:
+
+```yaml
+services:
+  saki:
+    image: rajnandan1/saki:latest
+    container_name: saki
+    ports:
+      - "8765:80"
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+### Build from source
 
 ```bash
 git clone https://github.com/rajnandan1/saki.git
