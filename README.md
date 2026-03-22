@@ -2,9 +2,7 @@
 
 A self-hosted Nginx reverse proxy that routes analytics and tracking requests through your own domain. Most adblockers block requests to known analytics domains like `googletagmanager.com`, `amplitude.com`, `clarity.ms`, etc. Saki proxies these requests through your infrastructure so they aren't blocked.
 
-Runs as a single Docker container using Nginx Alpine.
-
-When deployed to platforms like Railway, the container automatically binds to the platform-provided `PORT` environment variable. Locally, it defaults to port `80` inside the container.
+Runs as a single Docker container using Nginx Alpine. The container listens on the `PORT` environment variable, defaulting to `80` if not set — making it compatible with any platform that injects a port at runtime (Railway, Render, Fly.io, Heroku, etc.).
 
 ## Supported Services
 
@@ -139,16 +137,18 @@ posthog.init("YOUR_KEY", {
 
 ### Change the port
 
-Edit `docker-compose.yml` and change the host port:
+**Locally** — edit `docker-compose.yml` and change the host port:
 
 ```yaml
 ports:
     - "3000:80" # Change 8765 to any port
 ```
 
+**On a PaaS platform** — set the `PORT` environment variable to whatever port the platform expects the container to listen on. The container will bind to that port automatically.
+
 ### Add a new service
 
-Edit `nginx.conf` and add a new location block:
+Edit `templates/default.conf.template` and add a new location block:
 
 ```nginx
 # Example: Facebook Pixel
@@ -168,6 +168,8 @@ Then rebuild:
 ```bash
 docker compose up -d --build
 ```
+
+> `nginx.conf` contains the top-level http settings. `templates/default.conf.template` contains the server block and all location routes — this file is processed at container startup with `envsubst` to resolve `${PORT}`.
 
 ## What Gets Forwarded
 
@@ -191,18 +193,20 @@ For production, put this behind your own domain with HTTPS:
 3. Use a reverse proxy (Caddy, Traefik, or another Nginx) with TLS termination in front of the container
 4. Update your website scripts to use `https://t.yourdomain.com/...`
 
-### Railway
+### PaaS platforms (Railway, Render, Fly.io, Heroku, etc.)
 
-Railway injects a `PORT` environment variable at runtime. This project reads that automatically, so no manual port configuration is required.
+Most PaaS platforms inject a `PORT` environment variable and expect the container to listen on it. Saki reads `PORT` automatically at startup — no extra configuration is needed. Just deploy the container and make sure your platform's networking points to the same port the container is listening on (the value of `PORT`).
 
 ## Project Structure
 
 ```
 saki/
-├── Dockerfile          # Nginx Alpine image
-├── docker-compose.yml  # Container configuration
-├── nginx.conf          # Proxy routes and settings
-├── LICENSE             # MIT License
+├── Dockerfile                          # Nginx Alpine image
+├── docker-compose.yml                  # Container configuration
+├── nginx.conf                          # Top-level http config
+├── templates/
+│   └── default.conf.template           # Server block with PORT and all location routes
+├── LICENSE                             # MIT License
 └── README.md
 ```
 
