@@ -182,6 +182,8 @@ The proxy forwards all client details to the upstream analytics service so track
 - `X-Forwarded-For` — proxy chain
 - `X-Forwarded-Proto` — original protocol
 
+When running behind a platform load balancer (Railway, Render, etc.), Saki trusts the `X-Forwarded-For` header to recover the original visitor IP and forward it upstream so geo data reflects your users instead of the proxy location.
+
 JavaScript responses also have domain references rewritten via `sub_filter` so that internal script references point back through the proxy.
 
 ## Production Deployment
