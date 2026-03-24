@@ -150,7 +150,21 @@ ports:
 
 ### Customise route paths
 
-Set environment variables to override the default route prefixes. This is useful if an adblocker still catches a default route, or you simply want your own naming:
+Every route is controlled by an environment variable. Set any of them to change the URL path for that service.
+
+| Variable         | Default | What it controls          |
+| ---------------- | ------- | ------------------------- |
+| `ROUTE_GTM`      | `tg`    | Google Tag Manager        |
+| `ROUTE_GA`       | `an`    | Google Analytics          |
+| `ROUTE_AMP_CDN`  | `acdn`  | Amplitude JS SDK          |
+| `ROUTE_AMP_API`  | `aapi`  | Amplitude event API       |
+| `ROUTE_MIX_CDN`  | `mxc`   | Mixpanel JS SDK           |
+| `ROUTE_MIX_API`  | `mxa`   | Mixpanel event API        |
+| `ROUTE_CLARITY`  | `cla`   | Microsoft Clarity         |
+| `ROUTE_PH_JS`    | `phj`   | PostHog JS SDK            |
+| `ROUTE_PH_API`   | `pha`   | PostHog event API         |
+
+**Example** — say you set `ROUTE_GTM=g-t-m` and `ROUTE_GA=g-a` in your deployment:
 
 ```yaml
 services:
@@ -159,11 +173,32 @@ services:
         ports:
             - "8765:80"
         environment:
-            - ROUTE_GTM=mytagscript
-            - ROUTE_GA=mydata
+            - ROUTE_GTM=g-t-m
+            - ROUTE_GA=g-a
 ```
 
-The full list of variables and their defaults is in the [Supported Services](#supported-services) table.
+Your URLs would then look like:
+
+```
+# Google Tag Manager (was /tg/, now /g-t-m/)
+https://your-domain.com/g-t-m/gtag/js?id=G-XXXXXXXX
+
+# Google Analytics (was /an/, now /g-a/)
+https://your-domain.com/g-a/collect?v=2&tid=G-XXXXXXXX...
+```
+
+And in your website HTML:
+
+```html
+<script src="https://your-domain.com/g-t-m/gtag/js?id=G-XXXXXXXX"></script>
+<script>
+    gtag("config", "G-XXXXXXXX", {
+        transport_url: "https://your-domain.com/g-a",
+    });
+</script>
+```
+
+Any variable you don't set keeps its default. Only set the ones you need to change.
 
 ### Add a new service
 

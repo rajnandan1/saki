@@ -465,6 +465,14 @@
                 color: var(--warm-gray);
             }
 
+            .service-env {
+                font-family: "SFMono-Regular", "Consolas", monospace;
+                font-size: 0.7rem;
+                color: var(--warm-gray);
+                margin-top: 0.4rem;
+                opacity: 0.7;
+            }
+
             /* ─── Get Started Section ─── */
 
             .start-section {
@@ -782,7 +790,7 @@
         </style>
         <script
             async
-            src="https://saki-production.up.railway.app/tg/gtag/js?id=G-XY8P7ZVPV5"
+            src="https://saki-production.up.railway.app/g-t-m/gtag/js?id=G-XY8P7ZVPV5"
         ></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -793,7 +801,7 @@
 
             gtag("config", "G-XY8P7ZVPV5", {
                 transport_url:
-                    "https://saki-production.up.railway.app/an",
+                    "https://saki-production.up.railway.app/g-a",
             });
         </script>
     </head>
@@ -1008,6 +1016,19 @@
                 <h2 class="section-heading reveal">
                     Works with the tools<br />you already use
                 </h2>
+                <p
+                    class="reveal"
+                    style="
+                        color: var(--warm-gray);
+                        line-height: 1.7;
+                        font-size: 0.95rem;
+                        margin-bottom: 2rem;
+                    "
+                >
+                    Each route has a short default path to avoid adblockers.
+                    You can change any route by setting its environment
+                    variable in your deployment.
+                </p>
                 <div class="services-grid reveal">
                     <div class="service-cell">
                         <div class="service-name">Google Tag Manager</div>
@@ -1015,6 +1036,7 @@
                         <div class="service-upstream">
                             www.googletagmanager.com
                         </div>
+                        <div class="service-env">ROUTE_GTM</div>
                     </div>
                     <div class="service-cell">
                         <div class="service-name">Google Analytics</div>
@@ -1022,28 +1044,51 @@
                         <div class="service-upstream">
                             www.google-analytics.com
                         </div>
+                        <div class="service-env">ROUTE_GA</div>
                     </div>
                     <div class="service-cell">
-                        <div class="service-name">Amplitude</div>
+                        <div class="service-name">Amplitude CDN</div>
                         <div class="service-route">/acdn/</div>
                         <div class="service-upstream">cdn.amplitude.com</div>
+                        <div class="service-env">ROUTE_AMP_CDN</div>
                     </div>
                     <div class="service-cell">
-                        <div class="service-name">Mixpanel</div>
+                        <div class="service-name">Amplitude API</div>
+                        <div class="service-route">/aapi/</div>
+                        <div class="service-upstream">api2.amplitude.com</div>
+                        <div class="service-env">ROUTE_AMP_API</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Mixpanel CDN</div>
                         <div class="service-route">/mxc/</div>
                         <div class="service-upstream">cdn.mxpnl.com</div>
+                        <div class="service-env">ROUTE_MIX_CDN</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">Mixpanel API</div>
+                        <div class="service-route">/mxa/</div>
+                        <div class="service-upstream">api.mixpanel.com</div>
+                        <div class="service-env">ROUTE_MIX_API</div>
                     </div>
                     <div class="service-cell">
                         <div class="service-name">Microsoft Clarity</div>
                         <div class="service-route">/cla/</div>
                         <div class="service-upstream">www.clarity.ms</div>
+                        <div class="service-env">ROUTE_CLARITY</div>
                     </div>
                     <div class="service-cell">
-                        <div class="service-name">PostHog</div>
+                        <div class="service-name">PostHog JS</div>
                         <div class="service-route">/phj/</div>
                         <div class="service-upstream">
                             us-assets.i.posthog.com
                         </div>
+                        <div class="service-env">ROUTE_PH_JS</div>
+                    </div>
+                    <div class="service-cell">
+                        <div class="service-name">PostHog API</div>
+                        <div class="service-route">/pha/</div>
+                        <div class="service-upstream">us.i.posthog.com</div>
+                        <div class="service-env">ROUTE_PH_API</div>
                     </div>
                 </div>
             </div>
