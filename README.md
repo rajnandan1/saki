@@ -182,6 +182,10 @@ The proxy forwards all client details to the upstream analytics service so track
 - `X-Forwarded-For` — proxy chain
 - `X-Forwarded-Proto` — original protocol
 
+When running behind a platform load balancer (Railway, Render, etc.), Saki uses the Nginx `real_ip` module to recover the original visitor IP from `X-Forwarded-For` and forward it upstream so geo data reflects your users instead of the proxy location.
+
+> **Security note:** The `set_real_ip_from` directives in `nginx.conf` control which sources are trusted to set `X-Forwarded-For`. By default they allow RFC 1918 private ranges. If your load balancer uses public IPs, replace these with the actual LB egress ranges. Never use `0.0.0.0/0` in production — it lets any client spoof their IP.
+
 JavaScript responses also have domain references rewritten via `sub_filter` so that internal script references point back through the proxy.
 
 ## Production Deployment
