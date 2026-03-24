@@ -12,15 +12,20 @@ server {
         sub_filter 'www.googletagmanager.com' '$host/${ROUTE_GTM}';
         sub_filter 'www.google-analytics.com' '$host/${ROUTE_GA}';
         sub_filter '/gtag/js' '/script.js';
+        sub_filter '/g/collect' '/g/e';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # Google Analytics
     location /${ROUTE_GA}/ {
+        # Map neutral path so the browser never requests /g/collect directly
+        rewrite ^/${ROUTE_GA}/g/e$ /g/collect break;
+
         proxy_pass https://www.google-analytics.com/;
 
         sub_filter 'www.google-analytics.com' '$host/${ROUTE_GA}';
+        sub_filter '/g/collect' '/g/e';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
