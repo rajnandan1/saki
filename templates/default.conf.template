@@ -4,10 +4,14 @@ server {
 
     # Google Tag Manager
     location /${ROUTE_GTM}/ {
+        # Map neutral path so the browser never requests /gtag/js directly
+        rewrite ^/${ROUTE_GTM}/script\.js$ /gtag/js break;
+
         proxy_pass https://www.googletagmanager.com/;
 
         sub_filter 'www.googletagmanager.com' '$host/${ROUTE_GTM}';
         sub_filter 'www.google-analytics.com' '$host/${ROUTE_GA}';
+        sub_filter '/gtag/js' '/script.js';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }

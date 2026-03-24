@@ -61,7 +61,7 @@ The proxy is now running on `http://localhost:8765`.
 curl http://localhost:8765/health
 
 # Google Tag Manager
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/tg/gtag/js?id=G-XXXXXXXX"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/tg/script.js?id=G-XXXXXXXX"
 
 # Amplitude
 curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/acdn/libs/analytics-browser-2.11.0-min.js.gz"
@@ -89,7 +89,7 @@ Replace the original script domains in your website with the proxy URL.
 <script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>
 
 <!-- After -->
-<script src="https://your-proxy.example.com/tg/gtag/js?id=G-XXXXXXXX"></script>
+<script src="https://your-proxy.example.com/tg/script.js?id=G-XXXXXXXX"></script>
 ```
 
 ### Amplitude
@@ -181,7 +181,7 @@ Your URLs would then look like:
 
 ```
 # Google Tag Manager (was /tg/, now /g-t-m/)
-https://your-domain.com/g-t-m/gtag/js?id=G-XXXXXXXX
+https://your-domain.com/g-t-m/script.js?id=G-XXXXXXXX
 
 # Google Analytics (was /an/, now /g-a/)
 https://your-domain.com/g-a/collect?v=2&tid=G-XXXXXXXX...
@@ -190,7 +190,7 @@ https://your-domain.com/g-a/collect?v=2&tid=G-XXXXXXXX...
 And in your website HTML:
 
 ```html
-<script src="https://your-domain.com/g-t-m/gtag/js?id=G-XXXXXXXX"></script>
+<script src="https://your-domain.com/g-t-m/script.js?id=G-XXXXXXXX"></script>
 <script>
     gtag("config", "G-XXXXXXXX", {
         transport_url: "https://your-domain.com/g-a",
