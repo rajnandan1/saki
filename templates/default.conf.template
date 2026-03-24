@@ -3,90 +3,73 @@ server {
     server_name _;
 
     # Google Tag Manager
-    location /googletagmanager/ {
+    location /${ROUTE_GTM}/ {
         proxy_pass https://www.googletagmanager.com/;
-        proxy_set_header Host www.googletagmanager.com;
-        proxy_set_header Referer "";
 
-        sub_filter 'www.googletagmanager.com' '$host/googletagmanager';
+        sub_filter 'www.googletagmanager.com' '$host/${ROUTE_GTM}';
+        sub_filter 'www.google-analytics.com' '$host/${ROUTE_GA}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # Google Analytics
-    location /google-analytics/ {
+    location /${ROUTE_GA}/ {
         proxy_pass https://www.google-analytics.com/;
-        proxy_set_header Host www.google-analytics.com;
-        proxy_set_header Referer "";
 
-        sub_filter 'www.google-analytics.com' '$host/google-analytics';
+        sub_filter 'www.google-analytics.com' '$host/${ROUTE_GA}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # Amplitude CDN (JS SDK)
-    location /amplitude-cdn/ {
+    location /${ROUTE_AMP_CDN}/ {
         proxy_pass https://cdn.amplitude.com/;
-        proxy_set_header Host cdn.amplitude.com;
-        proxy_set_header Referer "";
 
-        sub_filter 'cdn.amplitude.com' '$host/amplitude-cdn';
+        sub_filter 'cdn.amplitude.com' '$host/${ROUTE_AMP_CDN}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # Amplitude API (event tracking)
-    location /amplitude-api/ {
+    location /${ROUTE_AMP_API}/ {
         proxy_pass https://api2.amplitude.com/;
-        proxy_set_header Host api2.amplitude.com;
-        proxy_set_header Referer "";
     }
 
     # Mixpanel CDN (JS SDK)
-    location /mixpanel-cdn/ {
+    location /${ROUTE_MIX_CDN}/ {
         proxy_pass https://cdn.mxpnl.com/;
-        proxy_set_header Host cdn.mxpnl.com;
-        proxy_set_header Referer "";
 
-        sub_filter 'cdn.mxpnl.com' '$host/mixpanel-cdn';
+        sub_filter 'cdn.mxpnl.com' '$host/${ROUTE_MIX_CDN}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # Mixpanel API (event tracking)
-    location /mixpanel-api/ {
+    location /${ROUTE_MIX_API}/ {
         proxy_pass https://api.mixpanel.com/;
-        proxy_set_header Host api.mixpanel.com;
-        proxy_set_header Referer "";
     }
 
     # Microsoft Clarity (JS SDK)
-    location /clarity/ {
+    location /${ROUTE_CLARITY}/ {
         proxy_pass https://www.clarity.ms/;
-        proxy_set_header Host www.clarity.ms;
-        proxy_set_header Referer "";
 
-        sub_filter 'www.clarity.ms' '$host/clarity';
+        sub_filter 'www.clarity.ms' '$host/${ROUTE_CLARITY}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # PostHog (JS SDK)
-    location /posthog-js/ {
+    location /${ROUTE_PH_JS}/ {
         proxy_pass https://us-assets.i.posthog.com/;
-        proxy_set_header Host us-assets.i.posthog.com;
-        proxy_set_header Referer "";
 
-        sub_filter 'us-assets.i.posthog.com' '$host/posthog-js';
+        sub_filter 'us-assets.i.posthog.com' '$host/${ROUTE_PH_JS}';
         sub_filter_once off;
         sub_filter_types application/javascript text/javascript;
     }
 
     # PostHog API (event tracking)
-    location /posthog-api/ {
+    location /${ROUTE_PH_API}/ {
         proxy_pass https://us.i.posthog.com/;
-        proxy_set_header Host us.i.posthog.com;
-        proxy_set_header Referer "";
     }
 
     # Health check

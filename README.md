@@ -6,17 +6,19 @@ Runs as a single Docker container using Nginx Alpine. The container listens on t
 
 ## Supported Services
 
-| Service            | Route                | Upstream Domain            |
-| ------------------ | -------------------- | -------------------------- |
-| Google Tag Manager | `/googletagmanager/` | `www.googletagmanager.com` |
-| Google Analytics   | `/google-analytics/` | `www.google-analytics.com` |
-| Amplitude CDN      | `/amplitude-cdn/`    | `cdn.amplitude.com`        |
-| Amplitude API      | `/amplitude-api/`    | `api2.amplitude.com`       |
-| Mixpanel CDN       | `/mixpanel-cdn/`     | `cdn.mxpnl.com`            |
-| Mixpanel API       | `/mixpanel-api/`     | `api.mixpanel.com`         |
-| Microsoft Clarity  | `/clarity/`          | `www.clarity.ms`           |
-| PostHog JS         | `/posthog-js/`       | `us-assets.i.posthog.com`  |
-| PostHog API        | `/posthog-api/`      | `us.i.posthog.com`         |
+| Service            | Default Route | Env Variable     | Upstream Domain            |
+| ------------------ | ------------- | ---------------- | -------------------------- |
+| Google Tag Manager | `/tg/`        | `ROUTE_GTM`      | `www.googletagmanager.com` |
+| Google Analytics   | `/an/`        | `ROUTE_GA`       | `www.google-analytics.com` |
+| Amplitude CDN      | `/acdn/`      | `ROUTE_AMP_CDN`  | `cdn.amplitude.com`        |
+| Amplitude API      | `/aapi/`      | `ROUTE_AMP_API`  | `api2.amplitude.com`       |
+| Mixpanel CDN       | `/mxc/`       | `ROUTE_MIX_CDN`  | `cdn.mxpnl.com`            |
+| Mixpanel API       | `/mxa/`       | `ROUTE_MIX_API`  | `api.mixpanel.com`         |
+| Microsoft Clarity  | `/cla/`       | `ROUTE_CLARITY`  | `www.clarity.ms`           |
+| PostHog JS         | `/phj/`       | `ROUTE_PH_JS`    | `us-assets.i.posthog.com`  |
+| PostHog API        | `/pha/`       | `ROUTE_PH_API`   | `us.i.posthog.com`         |
+
+> **Why short routes?** Adblockers match URL patterns — paths like `/googletagmanager/` or `/google-analytics/` get blocked even on your own domain. The default routes use short, neutral prefixes. You can customise them further via environment variables (see [Customise route paths](#customise-route-paths)).
 
 ## Get Started
 
@@ -59,19 +61,19 @@ The proxy is now running on `http://localhost:8765`.
 curl http://localhost:8765/health
 
 # Google Tag Manager
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/googletagmanager/gtag/js?id=G-XXXXXXXX"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/tg/gtag/js?id=G-XXXXXXXX"
 
 # Amplitude
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/amplitude-cdn/libs/analytics-browser-2.11.0-min.js.gz"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/acdn/libs/analytics-browser-2.11.0-min.js.gz"
 
 # Mixpanel
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/mixpanel-cdn/libs/mixpanel-2-latest.min.js"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/mxc/libs/mixpanel-2-latest.min.js"
 
 # Microsoft Clarity
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/clarity/s/0.7.59/clarity.js"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/cla/s/0.7.59/clarity.js"
 
 # PostHog
-curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/posthog-js/static/array.js"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765/phj/static/array.js"
 ```
 
 All should return `200`.
@@ -87,7 +89,7 @@ Replace the original script domains in your website with the proxy URL.
 <script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>
 
 <!-- After -->
-<script src="https://your-proxy.example.com/googletagmanager/gtag/js?id=G-XXXXXXXX"></script>
+<script src="https://your-proxy.example.com/tg/gtag/js?id=G-XXXXXXXX"></script>
 ```
 
 ### Amplitude
@@ -97,7 +99,7 @@ Replace the original script domains in your website with the proxy URL.
 <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.0-min.js.gz"></script>
 
 <!-- After -->
-<script src="https://your-proxy.example.com/amplitude-cdn/libs/analytics-browser-2.11.0-min.js.gz"></script>
+<script src="https://your-proxy.example.com/acdn/libs/analytics-browser-2.11.0-min.js.gz"></script>
 ```
 
 ### Mixpanel
@@ -107,7 +109,7 @@ Replace the original script domains in your website with the proxy URL.
 <script src="https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js"></script>
 
 <!-- After -->
-<script src="https://your-proxy.example.com/mixpanel-cdn/libs/mixpanel-2-latest.min.js"></script>
+<script src="https://your-proxy.example.com/mxc/libs/mixpanel-2-latest.min.js"></script>
 ```
 
 ### Microsoft Clarity
@@ -117,7 +119,7 @@ Replace the original script domains in your website with the proxy URL.
 <script>
     // Change the script source domain in the Clarity snippet
     // from: https://www.clarity.ms/tag/PROJECT_ID
-    // to:   https://your-proxy.example.com/clarity/tag/PROJECT_ID
+    // to:   https://your-proxy.example.com/cla/tag/PROJECT_ID
 </script>
 ```
 
@@ -129,7 +131,7 @@ posthog.init("YOUR_KEY", { api_host: "https://us.i.posthog.com" });
 
 // After
 posthog.init("YOUR_KEY", {
-    api_host: "https://your-proxy.example.com/posthog-api",
+    api_host: "https://your-proxy.example.com/pha",
 });
 ```
 
@@ -146,21 +148,42 @@ ports:
 
 **On a PaaS platform** — set the `PORT` environment variable to whatever port the platform expects the container to listen on. The container will bind to that port automatically.
 
+### Customise route paths
+
+Set environment variables to override the default route prefixes. This is useful if an adblocker still catches a default route, or you simply want your own naming:
+
+```yaml
+services:
+    saki:
+        image: rajnandan1/saki:latest
+        ports:
+            - "8765:80"
+        environment:
+            - ROUTE_GTM=mytagscript
+            - ROUTE_GA=mydata
+```
+
+The full list of variables and their defaults is in the [Supported Services](#supported-services) table.
+
 ### Add a new service
 
 Edit `templates/default.conf.template` and add a new location block:
 
 ```nginx
 # Example: Facebook Pixel
-location /facebook/ {
+location /${ROUTE_FB}/ {
     proxy_pass https://connect.facebook.net/;
-    proxy_set_header Host connect.facebook.net;
-    proxy_set_header Referer "";
 
-    sub_filter 'connect.facebook.net' '$host/facebook';
+    sub_filter 'connect.facebook.net' '$host/${ROUTE_FB}';
     sub_filter_once off;
     sub_filter_types application/javascript text/javascript;
 }
+```
+
+Add a default in the `Dockerfile`:
+
+```dockerfile
+ENV ROUTE_FB=fb
 ```
 
 Then rebuild:
@@ -169,7 +192,7 @@ Then rebuild:
 docker compose up -d --build
 ```
 
-> `nginx.conf` contains the top-level http settings. `templates/default.conf.template` contains the server block and all location routes — this file is processed at container startup with `envsubst` to resolve `${PORT}`.
+> `nginx.conf` contains the top-level http settings. `templates/default.conf.template` contains the server block and all location routes — this file is processed at container startup with `envsubst` to resolve environment variables like `${PORT}` and `${ROUTE_*}`.
 
 ## What Gets Forwarded
 
