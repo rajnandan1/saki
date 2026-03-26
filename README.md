@@ -4,19 +4,21 @@ A self-hosted Nginx reverse proxy that routes analytics and tracking requests th
 
 Runs as a single Docker container using Nginx Alpine. The container listens on the `PORT` environment variable, defaulting to `80` if not set — making it compatible with any platform that injects a port at runtime (Railway, Render, Fly.io, Heroku, etc.).
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/saki?referralCode=1Pn7vs&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 ## Supported Services
 
-| Service            | Default Route | Env Variable     | Upstream Domain            |
-| ------------------ | ------------- | ---------------- | -------------------------- |
-| Google Tag Manager | `/tg/`        | `ROUTE_GTM`      | `www.googletagmanager.com` |
-| Google Analytics   | `/an/`        | `ROUTE_GA`       | `www.google-analytics.com` |
-| Amplitude CDN      | `/acdn/`      | `ROUTE_AMP_CDN`  | `cdn.amplitude.com`        |
-| Amplitude API      | `/aapi/`      | `ROUTE_AMP_API`  | `api2.amplitude.com`       |
-| Mixpanel CDN       | `/mxc/`       | `ROUTE_MIX_CDN`  | `cdn.mxpnl.com`            |
-| Mixpanel API       | `/mxa/`       | `ROUTE_MIX_API`  | `api.mixpanel.com`         |
-| Microsoft Clarity  | `/cla/`       | `ROUTE_CLARITY`  | `www.clarity.ms`           |
-| PostHog JS         | `/phj/`       | `ROUTE_PH_JS`    | `us-assets.i.posthog.com`  |
-| PostHog API        | `/pha/`       | `ROUTE_PH_API`   | `us.i.posthog.com`         |
+| Service            | Default Route | Env Variable    | Upstream Domain            |
+| ------------------ | ------------- | --------------- | -------------------------- |
+| Google Tag Manager | `/tg/`        | `ROUTE_GTM`     | `www.googletagmanager.com` |
+| Google Analytics   | `/an/`        | `ROUTE_GA`      | `www.google-analytics.com` |
+| Amplitude CDN      | `/acdn/`      | `ROUTE_AMP_CDN` | `cdn.amplitude.com`        |
+| Amplitude API      | `/aapi/`      | `ROUTE_AMP_API` | `api2.amplitude.com`       |
+| Mixpanel CDN       | `/mxc/`       | `ROUTE_MIX_CDN` | `cdn.mxpnl.com`            |
+| Mixpanel API       | `/mxa/`       | `ROUTE_MIX_API` | `api.mixpanel.com`         |
+| Microsoft Clarity  | `/cla/`       | `ROUTE_CLARITY` | `www.clarity.ms`           |
+| PostHog JS         | `/phj/`       | `ROUTE_PH_JS`   | `us-assets.i.posthog.com`  |
+| PostHog API        | `/pha/`       | `ROUTE_PH_API`  | `us.i.posthog.com`         |
 
 > **Why short routes?** Adblockers match URL patterns — paths like `/googletagmanager/` or `/google-analytics/` get blocked even on your own domain. The default routes use short, neutral prefixes. You can customise them further via environment variables (see [Customise route paths](#customise-route-paths)).
 
@@ -152,17 +154,17 @@ ports:
 
 Every route is controlled by an environment variable. Set any of them to change the URL path for that service.
 
-| Variable         | Default | What it controls          |
-| ---------------- | ------- | ------------------------- |
-| `ROUTE_GTM`      | `tg`    | Google Tag Manager        |
-| `ROUTE_GA`       | `an`    | Google Analytics          |
-| `ROUTE_AMP_CDN`  | `acdn`  | Amplitude JS SDK          |
-| `ROUTE_AMP_API`  | `aapi`  | Amplitude event API       |
-| `ROUTE_MIX_CDN`  | `mxc`   | Mixpanel JS SDK           |
-| `ROUTE_MIX_API`  | `mxa`   | Mixpanel event API        |
-| `ROUTE_CLARITY`  | `cla`   | Microsoft Clarity         |
-| `ROUTE_PH_JS`    | `phj`   | PostHog JS SDK            |
-| `ROUTE_PH_API`   | `pha`   | PostHog event API         |
+| Variable        | Default | What it controls    |
+| --------------- | ------- | ------------------- |
+| `ROUTE_GTM`     | `tg`    | Google Tag Manager  |
+| `ROUTE_GA`      | `an`    | Google Analytics    |
+| `ROUTE_AMP_CDN` | `acdn`  | Amplitude JS SDK    |
+| `ROUTE_AMP_API` | `aapi`  | Amplitude event API |
+| `ROUTE_MIX_CDN` | `mxc`   | Mixpanel JS SDK     |
+| `ROUTE_MIX_API` | `mxa`   | Mixpanel event API  |
+| `ROUTE_CLARITY` | `cla`   | Microsoft Clarity   |
+| `ROUTE_PH_JS`   | `phj`   | PostHog JS SDK      |
+| `ROUTE_PH_API`  | `pha`   | PostHog event API   |
 
 **Example** — say you set `ROUTE_GTM=g-t-m` and `ROUTE_GA=g-a` in your deployment:
 
